@@ -15,3 +15,13 @@ flyway:
   datasources:
     default:
       locations: classpath:databasemigrations
+
+postgres:
+  reactive:
+    client:
+      port: ${ov.postgres.port}
+      host: ${ov.postgres.host}
+      database: ${ov.postgres.db}
+      user: ${ov.postgres.user}
+      password: ${ov.postgres.password}
+      maxSize: 5
