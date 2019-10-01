@@ -4,4 +4,14 @@ micronaut:
     name: tree-view-backend
 
 ---
+datasources:
+  default:
+    url: jdbc:postgresql://${ov.postgres.host}:${ov.postgres.port}/${ov.postgres.db}
+    username: ${ov.postgres.user}
+    password: ${ov.postgres.password}
+    driverClassName: org.postgresql.Driver
 
+flyway:
+  datasources:
+    default:
+      locations: classpath:databasemigrations
