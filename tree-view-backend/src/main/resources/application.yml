@@ -1,0 +1,7 @@
+---
+micronaut:
+  application:
+    name: tree-view-backend
+
+---
+

@@ -1,0 +1,5 @@
+profile: service
+defaultPackage: com.orlandovald.tree
+---
+testFramework: junit
+sourceLanguage: java
