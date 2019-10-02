@@ -1,9 +1,6 @@
 package com.orlandovald.tree;
 
-import com.orlandovald.tree.pojo.Node;
-import com.orlandovald.tree.pojo.ResponseType;
-import com.orlandovald.tree.pojo.TreeRequest;
-import com.orlandovald.tree.pojo.TreeResponse;
+import com.orlandovald.tree.pojo.*;
 
 import javax.inject.Singleton;
 import java.util.ArrayList;
@@ -32,14 +29,21 @@ public class TreeService {
         return repo.getFullTree();
     }
 
+    /**
+     * Main request processor. It will route the request based on its type
+     * @param req
+     * @return
+     */
     TreeResponse process(TreeRequest req) {
 
         switch (req.getType()) {
             case NODE_CREATE:
                 return nodeCreate(req.getNode(), req.getCount());
+            case NODE_DELETE:
+                return nodeDelete(req.getNode());
         }
-        System.out.println();
-        return null;
+
+        throw new TreeException("Operation not supported");
     }
 
     private TreeResponse nodeCreate(Node node, int count) {
@@ -49,6 +53,22 @@ public class TreeService {
         TreeResponse resp = new TreeResponse(ResponseType.NODE_CREATED);
         resp.setNode(newNode);
         return resp;
+    }
+
+    /**
+     * Deletes a Node. Throws an exception if the node id is not found
+     * @param node
+     * @return
+     */
+    private TreeResponse nodeDelete(Node node) {
+        Node deletedNode = repo.deleteNode(node.getId());
+        if(deletedNode != null && deletedNode.getId() > 0) {
+            TreeResponse resp = new TreeResponse(ResponseType.NODE_DELETED);
+            resp.setNode(deletedNode);
+            return resp;
+        } else {
+            throw new TreeException(String.format("Unable to find Node with id of [%d]", node.getId()));
+        }
     }
 
     /**
