@@ -22,6 +22,8 @@ public class TreeRepository {
             "FROM tree_nodes";
     public static final String SQL_DELETE_NODE = "DELETE FROM tree_nodes WHERE id = $1 RETURNING *";
     public static final String SQL_DELETE_CHILD = "UPDATE tree_nodes SET childs = array_remove(childs, $1) WHERE id = $2 RETURNING *";
+    public static final String SQL_SELECT_NODE = "SELECT id, name, lower_bound, upper_bound, childs, created_at FROM tree_nodes WHERE id = $1";
+    public static final String SQL_UPDATE_CHILDS = "UPDATE tree_nodes SET childs = $1 WHERE id = $2 RETURNING *";
 
     private final PgPool client;
 
@@ -51,6 +53,32 @@ public class TreeRepository {
                         nodes.add(node);
                     }
                     return nodes;
+                }).blockingGet();
+    }
+
+    /**
+     * Retrieves a single node based on its id
+     * @param id
+     * @return
+     */
+    public Node findById(int id) {
+        return client.rxPreparedQuery(SQL_SELECT_NODE, Tuple.of(id))
+                .map(rows -> {
+                    PgIterator it = rows.iterator();
+                    if(it.hasNext()) {
+                        Row row = it.next();
+                        Node node = new Node(
+                                row.getInteger(0),
+                                row.getString(1),
+                                row.getInteger(2),
+                                row.getInteger(3),
+                                row.getIntegerArray(4),
+                                row.getLocalDate(5));
+                        return node;
+                    }
+                    Node notFound = new Node();
+                    notFound.setId(-1);
+                    return notFound;
                 }).blockingGet();
     }
 
@@ -126,4 +154,29 @@ public class TreeRepository {
                 }).blockingGet();
     }
 
+    /**
+     * Update the childs of the given node
+     * @param node
+     * @return
+     */
+    public Node updateChilds(Node node) {
+        return client.rxPreparedQuery(SQL_UPDATE_CHILDS, Tuple.of(node.getChilds(), node.getId()))
+                .map(rows -> {
+                    PgIterator it = rows.iterator();
+                    if(it.hasNext()) {
+                        Row row = it.next();
+                        Node updatedNode = new Node(
+                                row.getInteger(0),
+                                row.getString(1),
+                                row.getInteger(2),
+                                row.getInteger(3),
+                                row.getIntegerArray(4),
+                                row.getLocalDate(5));
+                        return updatedNode;
+                    }
+                    Node notFound = new Node();
+                    notFound.setId(-1);
+                    return notFound;
+                }).blockingGet();
+    }
 }

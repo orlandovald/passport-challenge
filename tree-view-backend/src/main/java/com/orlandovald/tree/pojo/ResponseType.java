@@ -4,6 +4,7 @@ public enum ResponseType {
     ERROR,
     NODE_CREATED,
     NODE_DELETED,
-    NODE_GENERATED,
-    CHILD_DELETED;
+    CHILD_UPDATED,
+    CHILD_DELETED,
+    NODE_UPDATED;
 }

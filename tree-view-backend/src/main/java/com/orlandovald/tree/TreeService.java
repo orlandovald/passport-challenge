@@ -43,6 +43,8 @@ public class TreeService {
                 return nodeDelete(req.getNode());
             case CHILD_DELETE:
                 return childDelete(req.getNode());
+            case CHILD_UPDATE:
+                return updateChilds(req.getNode(), req.getCount());
         }
 
         throw new TreeException("Operation not supported");
@@ -86,6 +88,27 @@ public class TreeService {
         Node updatedNode = repo.deleteChild(node.getId(), num);
         if(updatedNode != null && updatedNode.getId() > 0) {
             TreeResponse resp = new TreeResponse(ResponseType.CHILD_DELETED);
+            resp.setNode(updatedNode);
+            return resp;
+        } else {
+            throw new TreeException(String.format("Unable to find Node with id of [%d]", node.getId()));
+        }
+    }
+
+    /**
+     * Generate a new set of child numbers for the given Node
+     * @param node
+     * @param count
+     * @return
+     */
+    private TreeResponse updateChilds(Node node, int count) {
+        Node nodeToBe = repo.findById(node.getId());
+        final List<Integer> nums = generateRandomNumbers(count, nodeToBe.getLowerBound(), nodeToBe.getUpperBound());
+        nodeToBe.setChilds(nums.toArray(new Integer[nums.size()]));
+        Node updatedNode = repo.updateChilds(nodeToBe);
+
+        if(updatedNode != null && updatedNode.getId() > 0) {
+            TreeResponse resp = new TreeResponse(ResponseType.CHILD_UPDATED);
             resp.setNode(updatedNode);
             return resp;
         } else {
