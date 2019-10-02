@@ -41,6 +41,8 @@ public class TreeService {
                 return nodeCreate(req.getNode(), req.getCount());
             case NODE_DELETE:
                 return nodeDelete(req.getNode());
+            case CHILD_DELETE:
+                return childDelete(req.getNode());
         }
 
         throw new TreeException("Operation not supported");
@@ -65,6 +67,26 @@ public class TreeService {
         if(deletedNode != null && deletedNode.getId() > 0) {
             TreeResponse resp = new TreeResponse(ResponseType.NODE_DELETED);
             resp.setNode(deletedNode);
+            return resp;
+        } else {
+            throw new TreeException(String.format("Unable to find Node with id of [%d]", node.getId()));
+        }
+    }
+
+    /**
+     * Deletes a child. Throws an exception if the node id is not found
+     * @param node
+     * @return
+     */
+    private TreeResponse childDelete(Node node) {
+        if(node.getChilds().length != 1 || node.getChilds()[0] == null) {
+            throw new TreeException("Invalid delete number request");
+        }
+        int num = node.getChilds()[0].intValue();
+        Node updatedNode = repo.deleteChild(node.getId(), num);
+        if(updatedNode != null && updatedNode.getId() > 0) {
+            TreeResponse resp = new TreeResponse(ResponseType.CHILD_DELETED);
+            resp.setNode(updatedNode);
             return resp;
         } else {
             throw new TreeException(String.format("Unable to find Node with id of [%d]", node.getId()));

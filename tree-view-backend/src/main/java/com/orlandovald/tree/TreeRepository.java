@@ -21,6 +21,7 @@ public class TreeRepository {
     public static final String SQL_SELECT_ALL_NODES = "SELECT id, name, lower_bound, upper_bound, childs, created_at " +
             "FROM tree_nodes";
     public static final String SQL_DELETE_NODE = "DELETE FROM tree_nodes WHERE id = $1 RETURNING *";
+    public static final String SQL_DELETE_CHILD = "UPDATE tree_nodes SET childs = array_remove(childs, $1) WHERE id = $2 RETURNING *";
 
     private final PgPool client;
 
@@ -97,4 +98,32 @@ public class TreeRepository {
                     return notFound;
                 }).blockingGet();
     }
+
+    /**
+     * Removes a child from a node
+     * @param id id of the Node
+     * @param child num to be removed
+     * @return
+     */
+    public Node deleteChild(int id, int child) {
+        return client.rxPreparedQuery(SQL_DELETE_CHILD, Tuple.of(child, id))
+                .map(rows -> {
+                    PgIterator it = rows.iterator();
+                    if(it.hasNext()) {
+                        Row row = it.next();
+                        Node updatedNode = new Node(
+                                row.getInteger(0),
+                                row.getString(1),
+                                row.getInteger(2),
+                                row.getInteger(3),
+                                row.getIntegerArray(4),
+                                row.getLocalDate(5));
+                        return updatedNode;
+                    }
+                    Node notFound = new Node();
+                    notFound.setId(-1);
+                    return notFound;
+                }).blockingGet();
+    }
+
 }
