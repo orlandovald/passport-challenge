@@ -1,5 +1,6 @@
 package com.orlandovald.tree;
 
+import com.orlandovald.tree.pojo.*;
 import io.micronaut.websocket.WebSocketBroadcaster;
 import io.micronaut.websocket.WebSocketSession;
 import io.micronaut.websocket.annotation.OnClose;
@@ -11,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * WebSocket handler
@@ -35,10 +37,17 @@ public class TreeWebSocket {
     }
 
     @OnMessage
-    public Publisher<String> onMessage(String message, WebSocketSession session) {
+    public Publisher<TreeResponse> onMessage(TreeRequest message, WebSocketSession session) {
         log.info("Message received from session: " + session.getId() + " Message: " + message);
-        String msg = "Message: " + message;
-        return broadcaster.broadcast(msg);
+        try {
+            TreeResponse resp = service.process(message);
+            return broadcaster.broadcast(resp);
+        } catch(TreeException ex) {
+            TreeResponse resp = new TreeResponse(ResponseType.ERROR);
+            resp.setMsg(ex.getMessage());
+            resp.setNode(message.getNode());
+            return broadcaster.broadcast(resp, isSender(session.getId()));
+        }
     }
 
     @OnClose
@@ -46,6 +55,16 @@ public class TreeWebSocket {
         String msg = "Adios!";
         log.info("Closing session: " + session.getId());
         return broadcaster.broadcast(msg);
+    }
+
+    /**
+     * Checks if the provided session Id correspond to the corresponding recipient.
+     * Use to filter broadcasting to only the originator.
+     * @param sessionId
+     * @return
+     */
+    private Predicate<WebSocketSession> isSender(String sessionId) {
+        return s -> s.getId().equals(sessionId);
     }
 
 }

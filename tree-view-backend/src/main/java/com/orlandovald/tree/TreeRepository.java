@@ -1,8 +1,10 @@
 package com.orlandovald.tree;
 
+import com.orlandovald.tree.pojo.Node;
 import io.reactiverse.reactivex.pgclient.PgIterator;
 import io.reactiverse.reactivex.pgclient.PgPool;
 import io.reactiverse.reactivex.pgclient.Row;
+import io.reactiverse.reactivex.pgclient.Tuple;
 
 import javax.inject.Singleton;
 import java.util.ArrayList;
@@ -13,6 +15,11 @@ import java.util.List;
  */
 @Singleton
 public class TreeRepository {
+
+    public static final String SQL_INSERT_NODE = "INSERT INTO tree_nodes (name, lower_bound, upper_bound, childs) " +
+            "VALUES ($1, $2, $3, $4) RETURNING id";
+    public static final String SQL_SELECT_ALL_NODES = "SELECT id, name, lower_bound, upper_bound, childs, created_at " +
+            "FROM tree_nodes";
 
     private final PgPool client;
 
@@ -25,9 +32,9 @@ public class TreeRepository {
      * @return
      */
     List<Node> getFullTree() {
-        return client.rxQuery("SELECT id, name, lower_bound, upper_bound, childs, created_at FROM tree_nodes")
-                .map(pgRowSet -> {
-                    PgIterator it = pgRowSet.iterator();
+        return client.rxQuery(SQL_SELECT_ALL_NODES)
+                .map(rows -> {
+                    PgIterator it = rows.iterator();
                     List<Node> nodes = new ArrayList<>();
                     while (it.hasNext()) {
                         Row row = it.next();
@@ -45,4 +52,22 @@ public class TreeRepository {
                 }).blockingGet();
     }
 
+    /**
+     * Create a node
+     * @param node
+     * @return the created node with its new Id
+     */
+    public Node create(Node node) {
+        Integer id = client.rxPreparedQuery(SQL_INSERT_NODE,
+                Tuple.of(node.getName(), node.getLowerBound(), node.getUpperBound(), node.getChilds()))
+                .map(rows -> {
+                    PgIterator it = rows.iterator();
+                    if (it.hasNext()) {
+                        return it.next().getInteger("id");
+                    }
+                    return -1;
+                }).blockingGet();
+        node.setId(id);
+        return node;
+    }
 }
