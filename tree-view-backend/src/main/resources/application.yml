@@ -25,3 +25,9 @@ postgres:
       user: ${ov.postgres.user}
       password: ${ov.postgres.password}
       maxSize: 5
+
+endpoints:
+  health:
+    enabled: true
+    sensitive: false
+    details-visible: ANONYMOUS
