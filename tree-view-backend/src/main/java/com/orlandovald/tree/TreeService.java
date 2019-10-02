@@ -15,6 +15,8 @@ import static java.util.stream.Collectors.toList;
 @Singleton
 public class TreeService {
 
+    public static int MAX_CHILD = 15;
+
     private final TreeRepository repo;
 
     public TreeService(TreeRepository repo) {
@@ -143,8 +145,12 @@ public class TreeService {
      * @return List of Integers of size {@code count}
      */
     public List<Integer> generateRandomNumbers(int count, int min, int max) {
-        if(count <= 0) {
+        if(count == 0) {
             return new ArrayList<Integer>();
+        } else if (count < 0 || count > MAX_CHILD) {
+            throw new TreeException(String.format("Child count should be between 0 and %d", MAX_CHILD));
+        } else if(max <= min) {
+            throw new TreeException("Upper bound should be greater than lower bound");
         }
         Random r = new Random();
         return r.ints(count, min, max + 1).boxed().collect(toList());
