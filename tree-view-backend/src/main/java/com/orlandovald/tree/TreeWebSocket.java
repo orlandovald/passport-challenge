@@ -3,10 +3,7 @@ package com.orlandovald.tree;
 import com.orlandovald.tree.pojo.*;
 import io.micronaut.websocket.WebSocketBroadcaster;
 import io.micronaut.websocket.WebSocketSession;
-import io.micronaut.websocket.annotation.OnClose;
-import io.micronaut.websocket.annotation.OnMessage;
-import io.micronaut.websocket.annotation.OnOpen;
-import io.micronaut.websocket.annotation.ServerWebSocket;
+import io.micronaut.websocket.annotation.*;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +52,14 @@ public class TreeWebSocket {
         String msg = "Adios!";
         log.info("Closing session: " + session.getId());
         return broadcaster.broadcast(msg);
+    }
+
+    @OnError
+    public Publisher<TreeResponse> onError(WebSocketSession session, Exception ex) {
+        log.error("Oops! Something went really wrong!", ex);
+        TreeResponse resp = new TreeResponse(ResponseType.ERROR);
+        resp.setMsg("Oops! Something went really wrong!");
+        return broadcaster.broadcast(resp, isSender(session.getId()));
     }
 
     /**
