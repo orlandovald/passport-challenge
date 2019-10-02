@@ -1,6 +1,7 @@
 package com.orlandovald.tree;
 
 import com.orlandovald.tree.pojo.Node;
+import com.orlandovald.tree.pojo.TreeException;
 import io.reactiverse.reactivex.pgclient.PgIterator;
 import io.reactiverse.reactivex.pgclient.PgPool;
 import io.reactiverse.reactivex.pgclient.Row;
@@ -8,6 +9,7 @@ import io.reactiverse.reactivex.pgclient.Tuple;
 
 import javax.inject.Singleton;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -24,6 +26,11 @@ public class TreeRepository {
     public static final String SQL_DELETE_CHILD = "UPDATE tree_nodes SET childs = array_remove(childs, $1) WHERE id = $2 RETURNING *";
     public static final String SQL_SELECT_NODE = "SELECT id, name, lower_bound, upper_bound, childs, created_at FROM tree_nodes WHERE id = $1";
     public static final String SQL_UPDATE_CHILDS = "UPDATE tree_nodes SET childs = $1 WHERE id = $2 RETURNING *";
+    public static final String SQL_UPDATE_NODE = "UPDATE tree_nodes SET #COLUMN# = $1 WHERE id = $2 RETURNING *";
+
+    public enum Columns {
+        name, lower_bound, upper_bound, childs;
+    }
 
     private final PgPool client;
 
@@ -178,5 +185,51 @@ public class TreeRepository {
                     notFound.setId(-1);
                     return notFound;
                 }).blockingGet();
+    }
+
+    /**
+     * Update Node values
+     * @param id
+     * @param column
+     * @param value
+     * @return
+     */
+    public Node updateNode(int id, String column, Object value) {
+        if(!isUpdatable(column)) {
+            throw new TreeException("Invalid update operation: " + column);
+        }
+        String query = SQL_UPDATE_NODE.replace("#COLUMN#", column);
+        return client.rxPreparedQuery(query, Tuple.of(value, id))
+                .map(rows -> {
+                    PgIterator it = rows.iterator();
+                    if(it.hasNext()) {
+                        Row row = it.next();
+                        Node updatedNode = new Node(
+                                row.getInteger(0),
+                                row.getString(1),
+                                row.getInteger(2),
+                                row.getInteger(3),
+                                row.getIntegerArray(4),
+                                row.getLocalDate(5));
+                        return updatedNode;
+                    }
+                    Node notFound = new Node();
+                    notFound.setId(-1);
+                    return notFound;
+                }).blockingGet();
+    }
+
+    /**
+     * Is the column updatable
+     * @param column
+     * @return true if the column is updatable, false otherwise
+     */
+    private boolean isUpdatable(String column) {
+        for (Columns c : Columns.values()) {
+            if (c.name().equals(column)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

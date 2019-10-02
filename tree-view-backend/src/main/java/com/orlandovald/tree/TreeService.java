@@ -45,6 +45,12 @@ public class TreeService {
                 return childDelete(req.getNode());
             case CHILD_UPDATE:
                 return updateChilds(req.getNode(), req.getCount());
+            case NODE_NAME_UPDATE:
+                return updateNode(req.getNode().getId(), TreeRepository.Columns.name.name(), req.getNode().getName(), ResponseType.NODE_NAME_UPDATED);
+            case NODE_LOWER_BOUND_UPDATE:
+                return updateNode(req.getNode().getId(), TreeRepository.Columns.lower_bound.name(), req.getNode().getLowerBound(), ResponseType.NODE_LOWER_BOUND_UPDATED);
+            case NODE_UPPER_BOUND_UPDATE:
+                return updateNode(req.getNode().getId(), TreeRepository.Columns.upper_bound.name(), req.getNode().getUpperBound(), ResponseType.NODE_UPPER_BOUND_UPDATED);
         }
 
         throw new TreeException("Operation not supported");
@@ -113,6 +119,19 @@ public class TreeService {
             return resp;
         } else {
             throw new TreeException(String.format("Unable to find Node with id of [%d]", node.getId()));
+        }
+    }
+
+    private TreeResponse updateNode(int id, String column, Object value, ResponseType respType) {
+
+        Node updatedNode = repo.updateNode(id, column, value);
+
+        if(updatedNode != null && updatedNode.getId() > 0) {
+            TreeResponse resp = new TreeResponse(respType);
+            resp.setNode(updatedNode);
+            return resp;
+        } else {
+            throw new TreeException(String.format("Unable to find Node with id of [%d]", id));
         }
     }
 
