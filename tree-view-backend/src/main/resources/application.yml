@@ -2,7 +2,8 @@
 micronaut:
   application:
     name: tree-view-backend
-
+  server:
+    port: 8086
 ---
 datasources:
   default:
