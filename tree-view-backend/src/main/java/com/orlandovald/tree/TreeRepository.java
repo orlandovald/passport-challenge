@@ -25,7 +25,7 @@ public class TreeRepository {
     public static final String SQL_DELETE_CHILD = "UPDATE tree_nodes SET childs = array_remove(childs, $1) WHERE id = $2 RETURNING *";
     public static final String SQL_SELECT_NODE = "SELECT id, name, lower_bound, upper_bound, childs, created_at FROM tree_nodes WHERE id = $1";
     public static final String SQL_UPDATE_CHILDS = "UPDATE tree_nodes SET childs = $1 WHERE id = $2 RETURNING *";
-    public static final String SQL_UPDATE_NODE = "UPDATE tree_nodes SET #COLUMN# = $1 WHERE id = $2 RETURNING *";
+    public static final String SQL_UPDATE_NODE = "UPDATE tree_nodes SET name = $1, lower_bound = $2, upper_bound = $3 WHERE id = $4 RETURNING *";
     public static final String SQL_DELETE_ALL_NODES = "DELETE FROM tree_nodes";
 
     public enum Columns {
@@ -189,17 +189,11 @@ public class TreeRepository {
 
     /**
      * Update Node values
-     * @param id
-     * @param column
-     * @param value
+     * @param node
      * @return
      */
-    public Node updateNode(int id, String column, Object value) {
-        if(!isUpdatable(column)) {
-            throw new TreeException("Invalid update operation: " + column);
-        }
-        String query = SQL_UPDATE_NODE.replace("#COLUMN#", column);
-        return client.rxPreparedQuery(query, Tuple.of(value, id))
+    public Node updateNode(Node node) {
+        return client.rxPreparedQuery(SQL_UPDATE_NODE, Tuple.of(node.getName(), node.getLowerBound(), node.getUpperBound(), node.getId()))
                 .map(rows -> {
                     PgIterator it = rows.iterator();
                     if(it.hasNext()) {

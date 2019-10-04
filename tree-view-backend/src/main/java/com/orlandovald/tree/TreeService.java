@@ -47,12 +47,8 @@ public class TreeService {
                 return childDelete(req.getNode());
             case CHILD_UPDATE:
                 return updateChilds(req.getNode(), req.getCount());
-            case NODE_NAME_UPDATE:
-                return updateNode(req.getNode().getId(), TreeRepository.Columns.name.name(), req.getNode().getName(), ResponseType.NODE_NAME_UPDATED);
-            case NODE_LOWER_BOUND_UPDATE:
-                return updateNode(req.getNode().getId(), TreeRepository.Columns.lower_bound.name(), req.getNode().getLowerBound(), ResponseType.NODE_LOWER_BOUND_UPDATED);
-            case NODE_UPPER_BOUND_UPDATE:
-                return updateNode(req.getNode().getId(), TreeRepository.Columns.upper_bound.name(), req.getNode().getUpperBound(), ResponseType.NODE_UPPER_BOUND_UPDATED);
+            case NODE_UPDATE:
+                return updateNode(req.getNode());
             case TREE_CLEAR:
                 return deleteAllNodes();
         }
@@ -141,16 +137,16 @@ public class TreeService {
         }
     }
 
-    private TreeResponse updateNode(int id, String column, Object value, ResponseType respType) {
+    private TreeResponse updateNode(Node node) {
 
-        Node updatedNode = repo.updateNode(id, column, value);
+        Node updatedNode = repo.updateNode(node);
 
         if(updatedNode != null && updatedNode.getId() > 0) {
-            TreeResponse resp = new TreeResponse(respType);
+            TreeResponse resp = new TreeResponse(ResponseType.NODE_UPDATED);
             resp.getNodes().add(updatedNode);
             return resp;
         } else {
-            throw new TreeException(String.format("Unable to find Node with id of [%d]", id));
+            throw new TreeException(String.format("Unable to find Node with id of [%d]", node.getId()));
         }
     }
 
