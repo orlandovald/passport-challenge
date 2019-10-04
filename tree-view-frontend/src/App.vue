@@ -2,10 +2,10 @@
   <div id="app">
     <div class="row">
       <div class="col s12">
-        <a class="waves-effect waves-light btn-small" @click="showModal = true"><i class="material-icons right">add_circle</i>Add node</a>
+        <a class="waves-effect waves-light btn-small" @click="showAddNodeModal = true"><i class="material-icons right">add_circle</i>Add node</a>
       </div>
     </div>
-    <add-node-modal v-if="showModal" @close="showModal = false" />
+    <add-node-modal v-if="showAddNodeModal" @close="showAddNodeModal = false" />
     <div class="row blue-grey lighten-5">
       <div class="col s12">
         <tree-view :treeNodes="treeNodes" />  
@@ -48,7 +48,7 @@ export default {
       req.node.upper_bound=upperBound;
       req.count=count;
       this.sendMessage(req);
-      this.showModal = false;
+      this.showAddNodeModal = false;
     },
     deleteChild: function(nodeId, num) {
       var req = buildRequest("CHILD_DELETE");
@@ -73,7 +73,7 @@ export default {
       this.replaceNode(idx, newNode);
     },
     nodeCreated: function(data) {
-      this.treeNodes.push(data.nodes[0]);
+      this.treeNodes.unshift(data.nodes[0]);
     },
     replaceNode: function(idx, newNode) {
       var clone = this.treeNodes.splice(0);
@@ -88,7 +88,7 @@ export default {
     return {
       isConnected: false,
       treeNodes: [],
-      showModal: false,
+      showAddNodeModal: false,
     }
   },
   created () {

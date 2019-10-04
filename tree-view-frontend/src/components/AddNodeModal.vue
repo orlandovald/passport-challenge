@@ -46,7 +46,6 @@ export default {
     name: 'add-node-modal',
         data: function () {
             return {
-                showModal: false,
                 nodeName: "",
                 upperBound: "",
                 lowerBound: "",
