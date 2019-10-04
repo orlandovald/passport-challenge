@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-    <!-- <add-button /> -->
     <div class="row">
       <div class="col s12">
         <a class="waves-effect waves-light btn-small" @click="showModal = true"><i class="material-icons right">add_circle</i>Add node</a>
@@ -10,6 +9,11 @@
     <div class="row blue-grey lighten-5">
       <div class="col s12">
         <tree-view :treeNodes="treeNodes" />  
+      </div>
+    </div>
+    <div class="row">
+      <div class="col s12">
+        <a class="waves-effect waves-light btn-small red" @click="deleteAll"><i class="material-icons right">warning</i>Delete all nodes</a>
       </div>
     </div>
   </div>
@@ -28,13 +32,11 @@ function buildRequest(type) {
 
 var treeNodes = [];
 import TreeView from '@/components/TreeView.vue'
-import AddButton from '@/components/AddButton.vue'
 import AddNodeModal from '@/components/AddNodeModal.vue'
 export default {
   name: "app",
   components: {
     TreeView,
-    AddButton,
     AddNodeModal,
   },
   methods: {
@@ -57,6 +59,11 @@ export default {
     sendMessage: function(obj) {
         this.$socket.sendObj(obj);
     },
+    deleteAll: function() {
+        if(confirm("Are you sure you want to delete all nodes?")) {
+          this.sendMessage(buildRequest("TREE_CLEAR"));
+        }
+    },
     // Response handlers
     childDeleted: function (data) {
       var newNode = data.nodes[0];
@@ -64,6 +71,9 @@ export default {
         return element.id == newNode.id; 
       });
       this.replaceNode(idx, newNode);
+    },
+    nodeCreated: function(data) {
+      this.treeNodes.push(data.nodes[0]);
     },
     replaceNode: function(idx, newNode) {
       var clone = this.treeNodes.splice(0);
@@ -91,6 +101,9 @@ export default {
       }
       else if(type == "CHILD_DELETED") {
         this.childDeleted(data);
+      }
+      else if(type == "NODE_CREATED") {
+        this.nodeCreated(data);
       }
       else {
         console.log("Unknown response\n" + event);
