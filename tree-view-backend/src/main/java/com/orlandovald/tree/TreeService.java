@@ -63,7 +63,7 @@ public class TreeService {
         node.setChilds(nums.toArray(new Integer[nums.size()]));
         Node newNode = repo.create(node);
         TreeResponse resp = new TreeResponse(ResponseType.NODE_CREATED);
-        resp.setNode(newNode);
+        resp.getNodes().add(newNode);
         return resp;
     }
 
@@ -76,7 +76,7 @@ public class TreeService {
         Node deletedNode = repo.deleteNode(node.getId());
         if(deletedNode != null && deletedNode.getId() > 0) {
             TreeResponse resp = new TreeResponse(ResponseType.NODE_DELETED);
-            resp.setNode(deletedNode);
+            resp.getNodes().add(deletedNode);
             return resp;
         } else {
             throw new TreeException(String.format("Unable to find Node with id of [%d]", node.getId()));
@@ -96,7 +96,7 @@ public class TreeService {
         Node updatedNode = repo.deleteChild(node.getId(), num);
         if(updatedNode != null && updatedNode.getId() > 0) {
             TreeResponse resp = new TreeResponse(ResponseType.CHILD_DELETED);
-            resp.setNode(updatedNode);
+            resp.getNodes().add(updatedNode);
             return resp;
         } else {
             throw new TreeException(String.format("Unable to find Node with id of [%d]", node.getId()));
@@ -117,7 +117,7 @@ public class TreeService {
 
         if(updatedNode != null && updatedNode.getId() > 0) {
             TreeResponse resp = new TreeResponse(ResponseType.CHILD_UPDATED);
-            resp.setNode(updatedNode);
+            resp.getNodes().add(updatedNode);
             return resp;
         } else {
             throw new TreeException(String.format("Unable to find Node with id of [%d]", node.getId()));
@@ -130,7 +130,7 @@ public class TreeService {
 
         if(updatedNode != null && updatedNode.getId() > 0) {
             TreeResponse resp = new TreeResponse(respType);
-            resp.setNode(updatedNode);
+            resp.getNodes().add(updatedNode);
             return resp;
         } else {
             throw new TreeException(String.format("Unable to find Node with id of [%d]", id));

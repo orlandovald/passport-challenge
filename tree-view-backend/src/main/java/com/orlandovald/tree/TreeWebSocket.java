@@ -28,9 +28,11 @@ public class TreeWebSocket {
     }
 
     @OnOpen
-    public Publisher<List<Node>> onOpen(WebSocketSession session) {
+    public Publisher<TreeResponse> onOpen(WebSocketSession session) {
         log.info("Opening session: " + session.getId());
-        return broadcaster.broadcast(service.getFullTree());
+        TreeResponse resp = new TreeResponse(ResponseType.REFRESH_ALL_NODES);
+        resp.getNodes().addAll(service.getFullTree());
+        return broadcaster.broadcast(resp);
     }
 
     @OnMessage
@@ -42,7 +44,7 @@ public class TreeWebSocket {
         } catch(TreeException ex) {
             TreeResponse resp = new TreeResponse(ResponseType.ERROR);
             resp.setMsg(ex.getMessage());
-            resp.setNode(message.getNode());
+            resp.getNodes().add(message.getNode());
             return broadcaster.broadcast(resp, isSender(session.getId()));
         }
     }

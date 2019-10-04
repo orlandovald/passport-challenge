@@ -1,5 +1,8 @@
 package com.orlandovald.tree.pojo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Represents a response message
  */
@@ -7,10 +10,11 @@ public class TreeResponse {
 
     private final ResponseType type;
     private String msg;
-    private Node node;
+    private List<Node> nodes;
 
     public TreeResponse(ResponseType type) {
         this.type = type;
+        this.nodes = new ArrayList<>();
     }
 
     public ResponseType getType() {
@@ -25,12 +29,12 @@ public class TreeResponse {
         this.msg = msg;
     }
 
-    public Node getNode() {
-        return node;
+    public List<Node> getNodes() {
+        return nodes;
     }
 
-    public void setNode(Node node) {
-        this.node = node;
+    public void setNodes(List<Node> nodes) {
+        this.nodes = nodes;
     }
 
     @Override
@@ -38,7 +42,7 @@ public class TreeResponse {
         return "TreeResponse{" +
                 "type=" + type +
                 ", msg='" + msg + '\'' +
-                ", node=" + node +
+                ", nodes=" + nodes +
                 '}';
     }
 }
