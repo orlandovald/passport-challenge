@@ -6,27 +6,45 @@
 
           <div class="modal-header">
             <slot name="header">
-              Create Node
+              Edit Node
             </slot>
           </div>
 
           <div class="modal-body">
-              <input id="node_name" type="text" v-model="nodeName" v-on:keyup.enter="save">
+              <input id="node_name" type="text" v-model="nodeName" placeholder="">
               <label for="node_name">Name</label>
-              <input id="lower_bound" type="number" v-model="lowerBound" v-on:keyup.enter="save">
+              <input id="lower_bound" type="number" v-model="lowerBound" placeholder="">
               <label for="lower_bound">Lower Bound</label>
-              <input id="upper_bound" type="number" v-model="upperBound" v-on:keyup.enter="save">
+              <input id="upper_bound" type="number" v-model="upperBound" placeholder="">
               <label for="upper_bound">Upper Bound</label>
-              <input id="child_count" type="number" v-model="childCount" v-on:keyup.enter="save">
+          </div>
+
+          <div class="modal-footer">
+            <slot name="footer">
+              <a @click="edit" class="waves-effect waves-light btn-small">Update</a>&nbsp;
+              <a @click="$emit('close')" class="waves-effect waves-light btn-small grey darken-3"><i class="tiny material-icons">close</i></a>&nbsp;
+              <a @click="deleteNode" class="waves-effect waves-light btn-small red"><i class="tiny material-icons">delete</i></a>
+            </slot>
+          </div>
+
+          <div class="modal-header" style="margin-top:14px;">
+            <slot name="header">
+              Re-generate childs
+            </slot>
+          </div>
+
+          <div class="modal-body">
+              <input id="child_count" type="number" v-model="childCount" placeholder="">
               <label for="child_count">Child Count</label>
           </div>
 
           <div class="modal-footer">
             <slot name="footer">
-              <a @click="save" class="waves-effect waves-light btn-small">Save</a>&nbsp;
-              <a @click="$emit('close')" class="waves-effect waves-light btn-small red">Cancel</a>
+              <a @click="regenerate" class="waves-effect waves-light btn-small">Regenerate</a>&nbsp;
+              <a @click="$emit('close')" class="waves-effect waves-light btn-small grey darken-3"><i class="tiny material-icons">close</i></a>&nbsp;
             </slot>
           </div>
+
         </div>
       </div>
     </div>
@@ -43,17 +61,20 @@ function isPositiveNumberOrCero(value) {
 }
 
 export default {
-    name: 'add-node-modal',
+    name: 'edit-node-modal',
+    props: {
+            editNodeObject: Object,
+        },
         data: function () {
             return {
-                nodeName: "",
-                upperBound: "",
-                lowerBound: "",
+                nodeName: this.editNodeObject.name,
+                upperBound: this.editNodeObject.upper_bound,
+                lowerBound: this.editNodeObject.lower_bound,
                 childCount: "",
             }
         },
         methods: {
-            save(){
+            edit() {
                 if(this.nodeName.length <= 0) {
                     M.toast({classes: "red", html: '"Name" is required'})
                     return;
@@ -70,12 +91,21 @@ export default {
                     M.toast({classes: "red", html: '"Upper Bound" should be greater than "Lower Bound"'})
                     return;
                 }
+                
+                this.$parent.updateNode(this.editNodeObject.id, this.nodeName, this.lowerBound, this.upperBound);
+            },
+            regenerate() {
                 if(!isPositiveNumberOrCero(this.childCount) || Number(this.childCount) > 15) {
                     M.toast({classes: "red", html: '"Child Count" should be number between 0-15'})
                     return;
                 }
-                this.$parent.createNode(this.nodeName, this.lowerBound, this.upperBound, this.childCount);
-            }
+                this.$parent.regenerate(this.editNodeObject.id, this.childCount);
+            },
+            deleteNode() {
+                if(confirm("Are you sure you want to delete this Node?")) {
+                    this.$parent.deleteNode(this.editNodeObject.id);
+                }
+            },
         },
 }
 </script>

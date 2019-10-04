@@ -3,13 +3,12 @@
     <h5>Root</h5>
     <ul class="tree">
       <li v-for="treeNode in treeNodes" :key="treeNode.id">
-          <span @mouseover="showByIndex = treeNode.id" @mouseout="showByIndex = null">{{ treeNode.name }} </span> 
-          <i class="tiny material-icons" v-show="showByIndex === treeNode.id">delete</i>
+          <span class="add-cursor" v-on:dblclick="editNode(treeNode.id)">{{ treeNode.name }} </span> 
           <span class="new badge" data-badge-caption="range">[{{ treeNode.lower_bound }} - {{ treeNode.upper_bound }}]</span>
         <ul v-if = "treeNode.childs!=null">
-          <li v-for="num in treeNode.childs" :key="treeNode.id + '-' + num" style="font-weight:normal">
+          <li v-for="(num, index) in treeNode.childs" :key="index" style="font-weight:normal">
             <div class="chip-child">
-                <div class="chip-child-content">{{ num }}&nbsp;<i v-on:click="deleteChild(treeNode.id,num)" class="tiny material-icons">close</i></div>
+                <div class="chip-child-content">{{ num }}&nbsp;<i v-on:click="deleteChild(treeNode.id,num)" class="add-cursor tiny material-icons">close</i></div>
             </div>
           </li>
         </ul>
@@ -26,20 +25,29 @@
         },
         data: function () {
             return {
-                showByIndex: null
+                
             }
         },
         methods: {
             deleteChild(nodeId, num){
                 this.$parent.deleteChild(nodeId, num);
+            },
+            editNode(nodeId) {
+                this.$parent.editNode(nodeId);
             }
         },
     }
 </script>
 
 <style scoped>
-    li i{
+    .add-cursor:hover {
+    background-color: yellow;
+    }
+    .add-cursor {
         cursor: pointer;
+    }
+    li i {
+    cursor: pointer;
     }
     .bold {
     font-weight: bold;
