@@ -24,7 +24,7 @@
           <div class="modal-footer">
             <slot name="footer">
               <a @click="save" class="waves-effect waves-light btn-small">Save</a>&nbsp;
-              <a @click="$emit('close')" class="waves-effect waves-light btn-small">Cancel</a>
+              <a @click="$emit('close')" class="waves-effect waves-light btn-small red">Cancel</a>
             </slot>
           </div>
         </div>
