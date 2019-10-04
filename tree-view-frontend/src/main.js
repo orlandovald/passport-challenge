@@ -1,10 +1,16 @@
-import Vue from "vue";
-import App from "./App.vue";
-import store from "./store";
+import Vue from 'vue'
+import VueNativeSock from 'vue-native-websocket'
+import {EagleModal} from 'vue-eagle-modal'
 
-Vue.config.productionTip = false;
+import App from './App.vue'
+import store from './store'
+
+Vue.config.productionTip = false
+
+Vue.use(EagleModal);
+Vue.use(VueNativeSock, 'ws://localhost:8086/ws/tree', { format: 'json' })
 
 new Vue({
   store,
   render: h => h(App)
-}).$mount("#app");
+}).$mount('#app')

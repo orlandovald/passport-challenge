@@ -9,7 +9,15 @@
   },
   "dependencies": {
     "core-js": "^2.6.5",
+    "node-sass": "^4.12.0",
+    "sass-loader": "^8.0.0",
+    "socket.io": "^2.3.0",
+    "socket.io-client": "^2.3.0",
+    "uws": "^10.148.1",
     "vue": "^2.6.10",
+    "vue-eagle-modal": "^1.0.5",
+    "vue-native-websocket": "^2.0.13",
+    "vue-socket.io": "^2.1.1-b",
     "vuex": "^3.0.1"
   },
   "devDependencies": {
