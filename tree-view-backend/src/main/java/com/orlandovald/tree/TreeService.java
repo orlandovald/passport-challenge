@@ -53,11 +53,28 @@ public class TreeService {
                 return updateNode(req.getNode().getId(), TreeRepository.Columns.lower_bound.name(), req.getNode().getLowerBound(), ResponseType.NODE_LOWER_BOUND_UPDATED);
             case NODE_UPPER_BOUND_UPDATE:
                 return updateNode(req.getNode().getId(), TreeRepository.Columns.upper_bound.name(), req.getNode().getUpperBound(), ResponseType.NODE_UPPER_BOUND_UPDATED);
+            case TREE_CLEAR:
+                return deleteAllNodes();
         }
 
         throw new TreeException("Operation not supported");
     }
 
+    /**
+     * Deletes all nodes
+     * @return
+     */
+    private TreeResponse deleteAllNodes() {
+        repo.clearTree();
+        return new TreeResponse(ResponseType.REFRESH_ALL_NODES);
+    }
+
+    /**
+     * Creates a node with the requested number of childs
+     * @param node
+     * @param count
+     * @return
+     */
     private TreeResponse nodeCreate(Node node, int count) {
         final List<Integer> nums = generateRandomNumbers(count, node.getLowerBound(), node.getUpperBound());
         node.setChilds(nums.toArray(new Integer[nums.size()]));

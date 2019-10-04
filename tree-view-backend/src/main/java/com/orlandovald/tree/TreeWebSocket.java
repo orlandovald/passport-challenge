@@ -1,6 +1,9 @@
 package com.orlandovald.tree;
 
-import com.orlandovald.tree.pojo.*;
+import com.orlandovald.tree.pojo.ResponseType;
+import com.orlandovald.tree.pojo.TreeException;
+import com.orlandovald.tree.pojo.TreeRequest;
+import com.orlandovald.tree.pojo.TreeResponse;
 import io.micronaut.websocket.WebSocketBroadcaster;
 import io.micronaut.websocket.WebSocketSession;
 import io.micronaut.websocket.annotation.*;
@@ -8,7 +11,6 @@ import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.function.Predicate;
 
 /**

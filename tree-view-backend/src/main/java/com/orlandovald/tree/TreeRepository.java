@@ -27,6 +27,7 @@ public class TreeRepository {
     public static final String SQL_SELECT_NODE = "SELECT id, name, lower_bound, upper_bound, childs, created_at FROM tree_nodes WHERE id = $1";
     public static final String SQL_UPDATE_CHILDS = "UPDATE tree_nodes SET childs = $1 WHERE id = $2 RETURNING *";
     public static final String SQL_UPDATE_NODE = "UPDATE tree_nodes SET #COLUMN# = $1 WHERE id = $2 RETURNING *";
+    public static final String SQL_DELETE_ALL_NODES = "DELETE FROM tree_nodes";
 
     public enum Columns {
         name, lower_bound, upper_bound, childs;
@@ -217,6 +218,13 @@ public class TreeRepository {
                     notFound.setId(-1);
                     return notFound;
                 }).blockingGet();
+    }
+
+    /**
+     * Deletes all nodes
+     */
+    public void clearTree() {
+        client.rxQuery(SQL_DELETE_ALL_NODES).blockingGet();
     }
 
     /**
